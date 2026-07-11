@@ -53,17 +53,20 @@ def act_layer(act: str = 'gelu') -> nn.Module:
     raise NotImplementedError(f'activation layer [{act}] is not found')
 
 
-def _norm_layer(norm_type: str, num_channels: int, dim: str) -> nn.Module:
-    """Build a normalisation layer operating on `num_channels` features.
+def _gn_groups(num_channels: int, prefer=(32, 16, 8, 4, 2, 1)) -> int:
+    for g in prefer:
+        if num_channels % g == 0:
+            return g
+    return 1
 
-    Defaults to BatchNorm to match the MKUNet multi-kernel design.
-    """
+
+def _norm_layer(norm_type: str, num_channels: int, dim: str) -> nn.Module:
+
+    if norm_type in ('group', 'gn'):
+        return nn.GroupNorm(num_groups=_gn_groups(num_channels),
+                            num_channels=num_channels)
     if norm_type in ('batch', 'bn'):
         return nn.BatchNorm2d(num_channels) if dim == '2d' else nn.BatchNorm3d(num_channels)
-    if norm_type in ('group', 'gn'):
-        # num_groups == num_channels == InstanceNorm, matching original MedNeXt.
-        num_groups = num_channels if num_channels % num_channels == 0 else 1
-        return nn.GroupNorm(num_groups=num_channels, num_channels=num_channels)
     if norm_type in ('instance', 'in'):
         return (nn.InstanceNorm2d(num_channels) if dim == '2d'
                 else nn.InstanceNorm3d(num_channels))
@@ -71,11 +74,6 @@ def _norm_layer(norm_type: str, num_channels: int, dim: str) -> nn.Module:
 
 
 class LayerNorm(nn.Module):
-    """ LayerNorm that supports two data formats: channels_last (default) or
-    channels_first. channels_last corresponds to inputs with shape
-    (batch_size, *spatial, channels) while channels_first corresponds to
-    (batch_size, channels, *spatial). channels_first is dim-aware (2D/3D).
-    """
     def __init__(self, normalized_shape, eps=1e-5, data_format="channels_last"):
         super().__init__()
         self.weight = nn.Parameter(torch.ones(normalized_shape))        # gamma
@@ -106,7 +104,7 @@ class MedNeXtBlock(nn.Module):
                  exp_r: int = 2,
                  kernel_sizes: Sequence[int] = (1, 3, 5),
                  do_res: bool = True,
-                 norm_type: str = 'batch',
+                 norm_type: str = 'group',
                  dim: str = '2d',
                  add: bool = True,
                  act: str = 'gelu',
@@ -230,7 +228,7 @@ if __name__ == "__main__":
     # 2D
     net2d = MedNeXtBlock(in_channels=32, out_channels=32, exp_r=2,
                          kernel_sizes=(1, 3, 5), dim='2d',
-                         norm_type='batch', layer_scale_init=1e-6,
+                         norm_type='group', layer_scale_init=1e-6,
                          drop_path_rate=0.1).cuda()
     with torch.no_grad():
         x = torch.zeros((2, 32, 64, 64)).cuda()
@@ -239,7 +237,7 @@ if __name__ == "__main__":
     # 3D
     net3d = MedNeXtBlock(in_channels=32, out_channels=32, exp_r=2,
                          kernel_sizes=(1, 3), dim='3d',
-                         norm_type='batch', layer_scale_init=1e-6)
+                         norm_type='group', layer_scale_init=1e-6)
     with torch.no_grad():
         x = torch.zeros((2, 32, 16, 16, 16)).cuda()
         print(net3d(x).shape)  # (2, 32, 16, 16, 16)

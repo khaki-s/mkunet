@@ -24,10 +24,11 @@ class nnUNetTrainer_MedNeXt2D(nnUNetTrainer):
     # set, e.g. 5 -> {1, 3, 5}.
     DW_KERNEL_SIZE: int = 5
     LAYER_SCALE_INIT: float = 1e-6         # ConvNeXt LayerScale gamma
-    MAX_DROP_PATH_RATE: float = 0.05        # linear stochastic-depth schedule
-    # ---- skip-connection attention knobs ----
-    # PFESA (parameter-free edge-structure attention) + GroupedAttentionGate
-    # (MKUNet GAG) applied to each decoder skip, in that order.
+    MAX_DROP_PATH_RATE: float = 0.05
+    USE_CA: bool = True
+    USE_SA: bool = True
+    SA_KERNEL: int = 7                      # spatial-attention kernel (per-stage)
+    NORM_TYPE: str = 'group'               # GroupNorm everywhere (batch-size independent)
     USE_PFESA: bool = True
     USE_GAG: bool = True
     PFESA_BASE_RATIO: float = 0.1
@@ -66,6 +67,10 @@ class nnUNetTrainer_MedNeXt2D(nnUNetTrainer):
             dw_kernel_size=cls.DW_KERNEL_SIZE,
             layer_scale_init=cls.LAYER_SCALE_INIT,
             max_drop_path_rate=cls.MAX_DROP_PATH_RATE,
+            use_ca=cls.USE_CA,
+            use_sa=cls.USE_SA,
+            sa_kernel=cls.SA_KERNEL,
+            norm_type=cls.NORM_TYPE,
             use_pfesa=cls.USE_PFESA,
             use_gag=cls.USE_GAG,
             pfesa_base_ratio=cls.PFESA_BASE_RATIO,
@@ -98,12 +103,12 @@ class nnUNetTrainer_MedNeXt2D(nnUNetTrainer):
         return optimizer, lr_scheduler
 
 
-class nnUNetTrainer_MedNeXt2D_100epochs(nnUNetTrainer_MedNeXt2D):
+class nnUNetTrainer_MedNeXt2D_200epochs(nnUNetTrainer_MedNeXt2D):
     def __init__(self, plans: dict, configuration: str, fold: int,
                  dataset_json: dict,
                  device: torch.device = torch.device('cuda')):
         super().__init__(plans, configuration, fold, dataset_json, device)
-        self.num_epochs = 100
+        self.num_epochs = 200
 
 
 class nnUNetTrainer_MedNeXt3D(nnUNetTrainer_MedNeXt2D):
