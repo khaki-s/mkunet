@@ -158,7 +158,7 @@ class GroupedAttentionGate(nn.Module):
 
     def __init__(self, F_g: int, F_l: int, F_int: int,
                  kernel_size: int = 3, groups: int = None,
-                 dim: str = '2d', norm_type: str = 'group'):
+                 dim: str = '2d', norm_type: str = 'batch'):
         super().__init__()
         conv = nn.Conv2d if dim == '2d' else nn.Conv3d
         if kernel_size == 1:
@@ -262,7 +262,7 @@ class MedNeXtUNet_nnUNet(nn.Module):
                  use_ca: bool = True,
                  use_sa: bool = True,
                  sa_kernel: int = 7,
-                 norm_type: str = 'group',      # GroupNorm everywhere (batch-size independent)
+                 norm_type: str = 'batch',      # GroupNorm everywhere (batch-size independent)
                  # ---- skip-connection attention knobs ----
                  use_pfesa: bool = True,        # PFESA edge-structure attention on skips
                  use_gag: bool = True,          # GroupedAttentionGate on skips

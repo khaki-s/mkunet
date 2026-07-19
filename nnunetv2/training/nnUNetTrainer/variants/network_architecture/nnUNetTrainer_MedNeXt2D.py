@@ -24,7 +24,7 @@ class nnUNetTrainer_MedNeXt2D(nnUNetTrainer):
     # set, e.g. 5 -> {1, 3, 5}.
     DW_KERNEL_SIZE: int = 5
     LAYER_SCALE_INIT: float = 1e-6         # ConvNeXt LayerScale gamma
-    MAX_DROP_PATH_RATE: float = 0.05
+    MAX_DROP_PATH_RATE: float = 0.1
     USE_CA: bool = True
     USE_SA: bool = True
     SA_KERNEL: int = 7                      # spatial-attention kernel (per-stage)
@@ -121,10 +121,11 @@ class nnUNetTrainer_MedNeXt3D(nnUNetTrainer_MedNeXt2D):
     DW_KERNEL_SIZE: int = 3
     LAYER_SCALE_INIT: float = 1e-6
     MAX_DROP_PATH_RATE: float = 0.03
+    USE_PFESA: bool = False
 
-class nnUNetTrainer_MedNeXt3D_100epochs(nnUNetTrainer_MedNeXt3D):
+class nnUNetTrainer_MedNeXt3D_150epochs(nnUNetTrainer_MedNeXt3D):
     def __init__(self, plans: dict, configuration: str, fold: int,
                  dataset_json: dict,
                  device: torch.device = torch.device('cuda')):
         super().__init__(plans, configuration, fold, dataset_json, device)
-        self.num_epochs = 100
+        self.num_epochs = 150

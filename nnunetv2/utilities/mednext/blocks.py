@@ -104,10 +104,10 @@ class MedNeXtBlock(nn.Module):
                  exp_r: int = 2,
                  kernel_sizes: Sequence[int] = (1, 3, 5),
                  do_res: bool = True,
-                 norm_type: str = 'group',
+                 norm_type: str = 'batch',
                  dim: str = '2d',
                  add: bool = True,
-                 act: str = 'gelu',
+                 act: str = 'relu6',
                  layer_scale_init: float = 1e-6,
                  drop_path_rate: float = 0.0,
                  **kwargs):
@@ -228,7 +228,7 @@ if __name__ == "__main__":
     # 2D
     net2d = MedNeXtBlock(in_channels=32, out_channels=32, exp_r=2,
                          kernel_sizes=(1, 3, 5), dim='2d',
-                         norm_type='group', layer_scale_init=1e-6,
+                         norm_type='batch', layer_scale_init=1e-6,
                          drop_path_rate=0.1).cuda()
     with torch.no_grad():
         x = torch.zeros((2, 32, 64, 64)).cuda()
