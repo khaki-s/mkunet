@@ -32,8 +32,15 @@ class nnUNetTrainer_FADSR(nnUNetTrainer):
         )
 
 
-class nnUNetTrainer_FADSR_150epochs(nnUNetTrainer_FADSR):
+class nnUNetTrainer_FADSR_99epochs(nnUNetTrainer_FADSR):
     def __init__(self, plans: dict, configuration: str, fold: int, dataset_json: dict,
                  device: torch.device = torch.device('cuda')):
         super().__init__(plans, configuration, fold, dataset_json, device)
-        self.num_epochs = 150
+        self.num_epochs = 99
+
+
+class nnUNetTrainer_FADSR_100epochs(nnUNetTrainer_FADSR):
+    def __init__(self, plans: dict, configuration: str, fold: int, dataset_json: dict,
+                 device: torch.device = torch.device('cuda')):
+        super().__init__(plans, configuration, fold, dataset_json, device)
+        self.num_epochs = 100
