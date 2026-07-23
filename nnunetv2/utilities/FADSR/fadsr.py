@@ -56,11 +56,13 @@ def _eca_kernel(c):
 
 
 class WaveletMixer(nn.Module):
-    def __init__(self, dim, kernel=5):
+    def __init__(self, dim, kernel=5,dilation = 1):
         super().__init__()
         self.pw = nn.Conv2d(4 * dim, 4 * dim, 1, bias=False)
         self.dw = nn.Conv2d(4 * dim, 4 * dim, kernel,
-                            padding=kernel // 2, groups=dim, bias=False)
+                            padding=kernel // 2 * dilation,   #  padding 随 dilation 调整
+                            groups=dim, bias=False,
+                            dilation=dilation) 
         self.norm = nn.GroupNorm(num_groups=dim, num_channels=4 * dim)
         self.act = nn.GELU()
         self.scale = nn.Parameter(torch.zeros(1, 4 * dim, 1, 1))  # 0 -> identity
@@ -89,8 +91,8 @@ class LightweightGuide(nn.Module):
 
 
 class FADSR(nn.Module):
-    def __init__(self, enc_dim, *, dec_dim=None, wt_type='db1', wt_levels=3,
-                 dw_kernel=5, dropout=0.1, num_stages=None, topk=None,
+    def __init__(self, enc_dim, *, dec_dim=None, wt_type='db2', wt_levels=3,
+                 dw_kernel=7, dropout=0.1, num_stages=None, topk=None,
                  use_skip_fuse=False, **kwargs):
         super().__init__()
         self.enc_dim = enc_dim
@@ -101,8 +103,9 @@ class FADSR(nn.Module):
         self.wavelet = WaveletOps(enc_dim, wt_type=wt_type)
 
         L = self.wt_levels
-        self.mixer = nn.ModuleList(
-            [WaveletMixer(enc_dim, dw_kernel) for _ in range(L)])
+        self.mixer = nn.ModuleList([
+            WaveletMixer(enc_dim, dw_kernel, dilation=1) for _ in range(L - 1)] +
+            [WaveletMixer(enc_dim, dw_kernel, dilation=2)])
         self.guide = nn.ModuleList(
             [LightweightGuide(enc_dim, self.dec_dim) for _ in range(L)])
 

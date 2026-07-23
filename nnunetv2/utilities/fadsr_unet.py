@@ -42,6 +42,7 @@ class FADSR_PlainConvUNet(nn.Module):
         self.fadsr_modules = nn.ModuleList([
             FADSR(
                 enc_dim=features_per_stage[d],
+                dec_dim=self.decoder.transpconvs[n_stages - d - 2].out_channels,
                 use_skip_fuse=False,        
             )
             for d in range(num_enc)
@@ -54,3 +55,32 @@ class FADSR_PlainConvUNet(nn.Module):
         for d in range(len(skips) - 1):
             skips[d] = self.fadsr_modules[d](skips[d], stage_id=d)
         return self.decoder(skips)
+
+        # dec = self.decoder
+        # seg_outputs = []
+ 
+        # x = skips[-1]
+ 
+        # num_dec_stages = len(dec.stages)
+ 
+        # for s in range(num_dec_stages):
+        #     x = dec.transpconvs[s](x)
+ 
+        #     skip_idx = len(skips) - s - 2  
+        #     refined_skip = self.fadsr_modules[skip_idx](
+        #         skips[skip_idx],
+        #         stage_id=skip_idx,
+        #         dec_feat=x                   
+        #     )
+
+        #     x = torch.cat((x, refined_skip), 1)
+ 
+        #     x = dec.stages[s](x)
+ 
+        #     if self.deep_supervision:
+        #         seg_outputs.append(dec.seg_layers[s](x))
+ 
+        # if self.deep_supervision:
+        #     return seg_outputs[::-1]
+        # else:
+        #     return dec.seg_layers[-1](x)
