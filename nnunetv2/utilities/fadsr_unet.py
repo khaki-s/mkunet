@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 from dynamic_network_architectures.architectures.unet import PlainConvUNet
-from nnunetv2.utilities.FADSR.fadsr import FADSR
+from nnunetv2.utilities.FADSR.blocks import FADSR, LiteInceptionNeXtBlock2d, BottleneckASPPCBAM
 
 
 class FADSR_PlainConvUNet(nn.Module):
@@ -11,7 +11,16 @@ class FADSR_PlainConvUNet(nn.Module):
                  conv_bias, norm_op, norm_op_kwargs,
                  dropout_op, dropout_op_kwargs,
                  nonlin, nonlin_kwargs, deep_supervision=True,
-                 fadsr_topk=2, **kwargs):
+                 fadsr_topk=2,
+                 use_spatial_block=False,
+                 spatial_mlp_ratio=2, spatial_branch_ratio=0.25,
+                 spatial_square_kernel=3, spatial_band_kernel=7,
+                 spatial_drop_path=0.1, spatial_layer_scale_init=1e-6,
+                 spatial_stage_start=0,
+                 use_bottleneck_attn=True,
+                 bottleneck_dilations=(1, 2, 3), bottleneck_reduction=16,
+                 bottleneck_spatial_kernel=7, bottleneck_layer_scale_init=1e-6,
+                 **kwargs):
         super().__init__()
 
         unet = PlainConvUNet(
@@ -37,14 +46,39 @@ class FADSR_PlainConvUNet(nn.Module):
         self.encoder = unet.encoder
         self.decoder = unet.decoder
 
-
         num_enc = n_stages - 1
-        self.fadsr_modules = nn.ModuleList([
-            FADSR(
-                enc_dim=features_per_stage[d],
-                dec_dim=self.decoder.transpconvs[n_stages - d - 2].out_channels,
-                use_skip_fuse=False,        
+
+        if use_spatial_block and conv_op is nn.Conv2d:
+            for d in range(spatial_stage_start, num_enc):
+                block = LiteInceptionNeXtBlock2d(
+                    features_per_stage[d],
+                    mlp_ratio=spatial_mlp_ratio,
+                    branch_ratio=spatial_branch_ratio,
+                    square_kernel=spatial_square_kernel,
+                    band_kernel=spatial_band_kernel,
+                    drop_path=spatial_drop_path,
+                    layer_scale_init=spatial_layer_scale_init,
+                    norm_op=norm_op,
+                    norm_op_kwargs=norm_op_kwargs,
+                )
+                stage = self.encoder.stages[d]
+                stage.add_module(str(len(stage)), block)
+
+        if use_bottleneck_attn and conv_op is nn.Conv2d:
+            bottleneck_block = BottleneckASPPCBAM(
+                features_per_stage[-1],
+                dilations=bottleneck_dilations,
+                reduction=bottleneck_reduction,
+                spatial_kernel=bottleneck_spatial_kernel,
+                norm_op=norm_op,
+                norm_op_kwargs=norm_op_kwargs,
+                layer_scale_init=bottleneck_layer_scale_init,
             )
+            stage = self.encoder.stages[-1]
+            stage.add_module(str(len(stage)), bottleneck_block)
+
+        self.fadsr_modules = nn.ModuleList([
+            FADSR(enc_dim=features_per_stage[d])
             for d in range(num_enc)
         ])
 
@@ -55,32 +89,3 @@ class FADSR_PlainConvUNet(nn.Module):
         for d in range(len(skips) - 1):
             skips[d] = self.fadsr_modules[d](skips[d], stage_id=d)
         return self.decoder(skips)
-
-        # dec = self.decoder
-        # seg_outputs = []
- 
-        # x = skips[-1]
- 
-        # num_dec_stages = len(dec.stages)
- 
-        # for s in range(num_dec_stages):
-        #     x = dec.transpconvs[s](x)
- 
-        #     skip_idx = len(skips) - s - 2  
-        #     refined_skip = self.fadsr_modules[skip_idx](
-        #         skips[skip_idx],
-        #         stage_id=skip_idx,
-        #         dec_feat=x                   
-        #     )
-
-        #     x = torch.cat((x, refined_skip), 1)
- 
-        #     x = dec.stages[s](x)
- 
-        #     if self.deep_supervision:
-        #         seg_outputs.append(dec.seg_layers[s](x))
- 
-        # if self.deep_supervision:
-        #     return seg_outputs[::-1]
-        # else:
-        #     return dec.seg_layers[-1](x)
