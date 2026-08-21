@@ -20,6 +20,14 @@ class FADSR_PlainConvUNet(nn.Module):
                  use_bottleneck_attn=True,
                  bottleneck_dilations=(1, 2, 3), bottleneck_reduction=16,
                  bottleneck_spatial_kernel=7, bottleneck_layer_scale_init=1e-6,
+                 fadsr_mixer_scale=0.0,
+                 fadsr_wt_type='db2', fadsr_wt_levels=3, fadsr_dw_kernel=7,
+                 fadsr_dw_kernels=None,
+                 fadsr_mixer_dilations=(2, 1, 1), fadsr_min_level_size=4,
+                 fadsr_subband_layout='stack',
+                 fadsr_hf_shrink=False, fadsr_hf_shrink_init=1e-3,
+                 fadsr_ll_enhance=False, fadsr_ll_kernel=3,
+                 fadsr_ll_gate_init=1e-2,
                  **kwargs):
         super().__init__()
 
@@ -78,11 +86,68 @@ class FADSR_PlainConvUNet(nn.Module):
             stage.add_module(str(len(stage)), bottleneck_block)
 
         self.fadsr_modules = nn.ModuleList([
-            FADSR(enc_dim=features_per_stage[d])
+            FADSR(enc_dim=features_per_stage[d],
+                  wt_type=fadsr_wt_type,
+                  wt_levels=fadsr_wt_levels,
+                  dw_kernel=fadsr_dw_kernel,
+                  dw_kernels=fadsr_dw_kernels,
+                  mixer_scale=fadsr_mixer_scale,
+                  mixer_dilations=fadsr_mixer_dilations,
+                  min_level_size=fadsr_min_level_size,
+                  subband_layout=fadsr_subband_layout,
+                  hf_shrink=fadsr_hf_shrink,
+                  hf_shrink_init=fadsr_hf_shrink_init,
+                  ll_enhance=fadsr_ll_enhance,
+                  ll_kernel=fadsr_ll_kernel,
+                  ll_gate_init=fadsr_ll_gate_init,
+                  norm_op=norm_op, norm_op_kwargs=norm_op_kwargs)
             for d in range(num_enc)
         ])
 
+        # Second pass, on purpose: LLEnhance owns conv weights, so building it
+        # inside the loop above would shift the RNG for every later stage's mixer
+        # and stop this from being a clean single-knob change against the same
+        # config with ll_enhance off.
+        for m in self.fadsr_modules:
+            m.attach_ll_enhance()
+
+        self.fadsr_config = dict(
+            wt_type=fadsr_wt_type, wt_levels=fadsr_wt_levels,
+            dw_kernel=fadsr_dw_kernel,
+            dw_kernels=(tuple(fadsr_dw_kernels) if fadsr_dw_kernels else None),
+            mixer_scale=fadsr_mixer_scale,
+            mixer_dilations=tuple(fadsr_mixer_dilations),
+            min_level_size=fadsr_min_level_size,
+            subband_layout=fadsr_subband_layout,
+            hf_shrink=fadsr_hf_shrink,
+            ll_enhance=fadsr_ll_enhance,
+            use_spatial_block=use_spatial_block,
+            use_bottleneck_attn=use_bottleneck_attn,
+        )
+
         self.deep_supervision = deep_supervision
+
+    @torch.no_grad()
+    def fadsr_gate_report(self):
+        """{stage -> [[LL, LH, HL, HH] per wavelet level]} for logging."""
+        return {d: m.gate_report() for d, m in enumerate(self.fadsr_modules)}
+
+    @torch.no_grad()
+    def fadsr_ll_report(self):
+        """{stage -> mean |LLEnhance gate|}, empty if disabled."""
+        return {d: m.ll_enhance.report()
+                for d, m in enumerate(self.fadsr_modules)
+                if m.ll_enhance is not None}
+
+    @torch.no_grad()
+    def fadsr_shrink_report(self):
+        """{stage -> [[LH, HL, HH] thresholds per level]}, empty if disabled."""
+        out = {}
+        for d, m in enumerate(self.fadsr_modules):
+            r = m.shrink_report()
+            if r is not None:
+                out[d] = r
+        return out
 
     def forward(self, x):
         skips = list(self.encoder(x))
