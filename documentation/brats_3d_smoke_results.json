@@ -1,0 +1,116 @@
+{
+  "protocol": "Two synthetic AMP optimizer steps, second-step timing; no patient training. Single timing is a smoke check, not a stable runtime benchmark.",
+  "gpu": "Tesla V100S-PCIE-32GB",
+  "torch": "2.0.1+cu117",
+  "models": [
+    {
+      "trainer": "nnUNetTrainer_ModuleBaseline_200epochs",
+      "parameters": 30789391,
+      "shared_initial_sha256": "27bed12998ef67bba71daceafc36b4b0ca5fa4b29615919a315eee238319103f",
+      "patch": [
+        128,
+        160,
+        112
+      ],
+      "batch": 2,
+      "synthetic_loss": 0.44078245759010315,
+      "second_train_step_seconds": 0.22762840148061514,
+      "peak_allocated_GiB": 5.306026935577393,
+      "layer_scale_grad_max": {},
+      "inference_shape": [
+        1,
+        3,
+        128,
+        160,
+        112
+      ]
+    },
+    {
+      "trainer": "nnUNetTrainer_MedNeXtEncoder_200epochs",
+      "parameters": 30896655,
+      "shared_initial_sha256": "27bed12998ef67bba71daceafc36b4b0ca5fa4b29615919a315eee238319103f",
+      "patch": [
+        128,
+        160,
+        112
+      ],
+      "batch": 2,
+      "synthetic_loss": 0.44080600142478943,
+      "second_train_step_seconds": 0.2944468818604946,
+      "peak_allocated_GiB": 6.077796936035156,
+      "layer_scale_grad_max": {
+        "1": 0.0006756818038411438,
+        "2": 0.0004276270919945091
+      },
+      "inference_shape": [
+        1,
+        3,
+        128,
+        160,
+        112
+      ]
+    },
+    {
+      "trainer": "nnUNetTrainer_EMCADDecoder_200epochs",
+      "parameters": 30933711,
+      "shared_initial_sha256": "27bed12998ef67bba71daceafc36b4b0ca5fa4b29615919a315eee238319103f",
+      "patch": [
+        128,
+        160,
+        112
+      ],
+      "batch": 2,
+      "synthetic_loss": 0.4407786428928375,
+      "second_train_step_seconds": 0.383756548166275,
+      "peak_allocated_GiB": 7.360353946685791,
+      "layer_scale_grad_max": {
+        "1": 0.0012266698759049177,
+        "2": 0.000268584699369967
+      },
+      "inference_shape": [
+        1,
+        3,
+        128,
+        160,
+        112
+      ]
+    },
+    {
+      "trainer": "nnUNetTrainer_WTConvSkip_200epochs",
+      "parameters": 30837967,
+      "shared_initial_sha256": "27bed12998ef67bba71daceafc36b4b0ca5fa4b29615919a315eee238319103f",
+      "patch": [
+        128,
+        160,
+        112
+      ],
+      "batch": 2,
+      "synthetic_loss": 0.4407832622528076,
+      "second_train_step_seconds": 0.2758584599941969,
+      "peak_allocated_GiB": 5.649419784545898,
+      "layer_scale_grad_max": {
+        "1": 8.040905959205702e-05,
+        "2": 8.951430208981037e-05
+      },
+      "inference_shape": [
+        1,
+        3,
+        128,
+        160,
+        112
+      ]
+    }
+  ],
+  "legacy_checkpoints": [
+    {
+      "trainer": "nnUNetTrainer_FADSR_A_db1parity_100epochs",
+      "checkpoint": "/root/autodl-tmp/data/nnUNet_results/Dataset137_BraTS2021/nnUNetTrainer_FADSR_A_db1parity_100epochs__nnUNetPlans__2d/fold_0/checkpoint_best.pth",
+      "strict_load": true
+    },
+    {
+      "trainer": "nnUNetTrainer_FADSR_3d_200epochs",
+      "checkpoint": "/root/autodl-tmp/data/nnUNet_results/Dataset137_BraTS2021/nnUNetTrainer_FADSR_3d_200epochs__nnUNetPlans__3d_fullres/fold_0/checkpoint_best.pth",
+      "strict_load": true
+    }
+  ]
+}

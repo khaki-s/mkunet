@@ -49,27 +49,7 @@ class LossBraTS(nn.Module):
         return l_wt + l_tc + l_et
 
 
-# ---------------------------------------------------------------------------
-# Region-weighted loss for nnU-Net's own region-based training.
-#
-# Dataset137 declares labels {whole tumor: [1,2,3], tumor core: [2,3],
-# enhancing tumor: [3]} with regions_class_order [1,2,3], so label_manager
-# .has_regions is True and nnUNetTrainer._build_loss picks DC_and_BCE_loss over
-# three sigmoid channels, channel 0 == WT. Both terms in that loss average over
-# channels uniformly (BCEWithLogitsLoss default reduction, and
-# MemoryEfficientSoftDiceLoss ends in dc.mean()), so WT currently carries exactly
-# 1/3 of the gradient. These classes make that split settable.
-#
-# This is the cheapest lever on WT that exists: it needs no new parameters, does
-# not perturb the init of anything (so it stays a clean single-knob comparison),
-# and it changes what the network is *asked* to do rather than hoping a new
-# module happens to help.
-# ---------------------------------------------------------------------------
-
-
 class WeightedRegionSoftDiceLoss(MemoryEfficientSoftDiceLoss):
-    """MemoryEfficientSoftDiceLoss with a per-region weight instead of mean()."""
-
     def __init__(self, *args, region_weights=None, **kwargs):
         super().__init__(*args, **kwargs)
         self.region_weights = region_weights

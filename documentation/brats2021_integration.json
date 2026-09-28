@@ -1,0 +1,79 @@
+{
+  "trainer_initialization": [
+    "nnUNetTrainer_BraTSAuditBaseline200",
+    "nnUNetTrainer_BraTSExclusiveLoss200",
+    "nnUNetTrainer_BraTSFreqSkip200",
+    "nnUNetTrainer_BraTSHard200",
+    "nnUNetTrainer_BraTSHardLoss200",
+    "nnUNetTrainer_BraTSMamba200",
+    "nnUNetTrainer_BraTSMoE200",
+    "nnUNetTrainer_BraTSMoEMamba200",
+    "nnUNetTrainer_BraTSMoENoPrior200",
+    "nnUNetTrainer_BraTSMoEUniform200",
+    "nnUNetTrainer_BraTSModGate200"
+  ],
+  "sliding_window": {
+    "baseline": [
+      3,
+      129,
+      160,
+      113
+    ],
+    "frequency": [
+      3,
+      129,
+      160,
+      113
+    ],
+    "mamba": [
+      3,
+      129,
+      160,
+      113
+    ],
+    "moe": [
+      3,
+      129,
+      160,
+      113
+    ]
+  },
+  "loader_workers": 0,
+  "real_augmented_batch_shapes": [
+    [
+      2,
+      3,
+      128,
+      160,
+      112
+    ],
+    [
+      2,
+      3,
+      64,
+      80,
+      56
+    ],
+    [
+      2,
+      3,
+      32,
+      40,
+      28
+    ],
+    [
+      2,
+      3,
+      16,
+      20,
+      14
+    ],
+    [
+      2,
+      3,
+      8,
+      10,
+      7
+    ]
+  ]
+}

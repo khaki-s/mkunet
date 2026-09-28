@@ -1,0 +1,65 @@
+{
+  "blocks.py": {
+    "original": "nnunetv2/utilities/FADSR/blocks.py",
+    "sha256": "f83d2ec32801b2cbf6753b6a931061a808472d332b05af21a7538da1dfadbf06",
+    "names": [
+      "_separable_bank",
+      "_make_wavelet_filters",
+      "WaveletOps",
+      "WaveletMixer",
+      "HFShrink",
+      "LLEnhance",
+      "drop_path",
+      "DropPath",
+      "InceptionDWMixer2d",
+      "LiteInceptionNeXtBlock2d",
+      "ASPPModule",
+      "CBAM",
+      "BottleneckASPPCBAM",
+      "FADSR"
+    ]
+  },
+  "network.py": {
+    "original": "nnunetv2/utilities/fadsr_unet.py",
+    "sha256": "ae2895b53b9e54179450cae1b5fc169df1f81cfd4fd3033564e98e919fee99b3",
+    "names": [
+      "FADSR_PlainConvUNet"
+    ]
+  },
+  "trainer.py": {
+    "original": "nnunetv2/training/nnUNetTrainer/variants/network_architecture/nnUNetTrainer_FADSR.py",
+    "sha256": "fd112771db06d6722adb4019343e129537708afd11bec2a172af84dde0231910",
+    "names": [
+      "_subband_names",
+      "_unwrap",
+      "BranchDiagnosticsMixin",
+      "WaveletGateLogMixin",
+      "NoDecayGatesMixin",
+      "nnUNetTrainer_FADSR",
+      "nnUNetTrainer_FADSR_A_db1parity_100epochs",
+      "nnUNetTrainer_FADSR_B_db2_100epochs",
+      "nnUNetTrainer_FADSR_C_stack_100epochs",
+      "nnUNetTrainer_FADSR_D_k7dil_100epochs",
+      "nnUNetTrainer_FADSR_E_warmgate_100epochs",
+      "nnUNetTrainer_FADSR_J_llenh_100epochs",
+      "TverskyRegionLossMixin",
+      "nnUNetTrainer_FADSR_N_tversky_100epochs",
+      "nnUNetTrainer_FADSR_Ndice_control_100epochs",
+      "nnUNetTrainer_FADSR_N2_tversky_100epochs",
+      "nnUNetTrainer_FADSR_L_k7_100epochs",
+      "nnUNetTrainer_FADSR_M_perlevelk_100epochs",
+      "nnUNetTrainer_FADSR_H_shrink_100epochs",
+      "nnUNetTrainer_FADSR_A_ft50_100epochs",
+      "nnUNetTrainer_ft50",
+      "nnUNetTrainer_SSA100eopochs",
+      "nnUNetTrainer_FADSR_A__SSA100epochs",
+      "nnUNetTrainer_FADSR_3d_200epochs",
+      "nnUNetTrainer_FADSR_3d_db2",
+      "nnUNetTrainer_FADSR_3d_stack",
+      "nnUNetTrainer_FADSR_99epochs",
+      "nnUNetTrainer_FADSR_100epochs_fixdb2",
+      "_DB1_PARITY",
+      "_DB1_PARITY_3D"
+    ]
+  }
+}

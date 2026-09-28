@@ -1,0 +1,253 @@
+{
+  "torch": "2.0.1+cu117",
+  "device": "cuda",
+  "patch": [
+    128,
+    160,
+    112
+  ],
+  "batch": 2,
+  "synthetic": true,
+  "sampler_ratios_bg_ed_ncr_et": [
+    0.4961,
+    0.123,
+    0.2584,
+    0.1225
+  ],
+  "registered_trainers": [
+    "nnUNetTrainer_BraTSAuditBaseline200",
+    "nnUNetTrainer_BraTSExclusiveLoss200",
+    "nnUNetTrainer_BraTSFreqSkip200",
+    "nnUNetTrainer_BraTSHard200",
+    "nnUNetTrainer_BraTSHardLoss200",
+    "nnUNetTrainer_BraTSMamba200",
+    "nnUNetTrainer_BraTSMoE200",
+    "nnUNetTrainer_BraTSMoEMamba200",
+    "nnUNetTrainer_BraTSMoENoPrior200",
+    "nnUNetTrainer_BraTSMoEUniform200",
+    "nnUNetTrainer_BraTSModGate200"
+  ],
+  "models": {
+    "baseline": {
+      "parameters": 30789391,
+      "output_shapes": [
+        [
+          2,
+          3,
+          128,
+          160,
+          112
+        ],
+        [
+          2,
+          3,
+          64,
+          80,
+          56
+        ],
+        [
+          2,
+          3,
+          32,
+          40,
+          28
+        ],
+        [
+          2,
+          3,
+          16,
+          20,
+          14
+        ],
+        [
+          2,
+          3,
+          8,
+          10,
+          7
+        ]
+      ],
+      "loss": 0.399850994348526,
+      "forward_backward_seconds": 1.1696024229750037,
+      "peak_allocated_gib": 5.154495716094971,
+      "strict_reload_and_ds_off": true
+    },
+    "gate": {
+      "parameters": 30790299,
+      "output_shapes": [
+        [
+          2,
+          3,
+          128,
+          160,
+          112
+        ],
+        [
+          2,
+          3,
+          64,
+          80,
+          56
+        ],
+        [
+          2,
+          3,
+          32,
+          40,
+          28
+        ],
+        [
+          2,
+          3,
+          16,
+          20,
+          14
+        ],
+        [
+          2,
+          3,
+          8,
+          10,
+          7
+        ]
+      ],
+      "loss": 0.4347703456878662,
+      "forward_backward_seconds": 0.261733734048903,
+      "peak_allocated_gib": 5.213303089141846,
+      "strict_reload_and_ds_off": true
+    },
+    "moe": {
+      "parameters": 30794558,
+      "output_shapes": [
+        [
+          2,
+          3,
+          128,
+          160,
+          112
+        ],
+        [
+          2,
+          3,
+          64,
+          80,
+          56
+        ],
+        [
+          2,
+          3,
+          32,
+          40,
+          28
+        ],
+        [
+          2,
+          3,
+          16,
+          20,
+          14
+        ],
+        [
+          2,
+          3,
+          8,
+          10,
+          7
+        ]
+      ],
+      "loss": 0.38822904229164124,
+      "forward_backward_seconds": 0.2838091729208827,
+      "peak_allocated_gib": 5.671856880187988,
+      "strict_reload_and_ds_off": true
+    },
+    "frequency": {
+      "parameters": 30789679,
+      "output_shapes": [
+        [
+          2,
+          3,
+          128,
+          160,
+          112
+        ],
+        [
+          2,
+          3,
+          64,
+          80,
+          56
+        ],
+        [
+          2,
+          3,
+          32,
+          40,
+          28
+        ],
+        [
+          2,
+          3,
+          16,
+          20,
+          14
+        ],
+        [
+          2,
+          3,
+          8,
+          10,
+          7
+        ]
+      ],
+      "loss": 0.5373154282569885,
+      "forward_backward_seconds": 0.3166263047605753,
+      "peak_allocated_gib": 7.754954814910889,
+      "strict_reload_and_ds_off": true
+    },
+    "mamba": {
+      "parameters": 31465551,
+      "output_shapes": [
+        [
+          2,
+          3,
+          128,
+          160,
+          112
+        ],
+        [
+          2,
+          3,
+          64,
+          80,
+          56
+        ],
+        [
+          2,
+          3,
+          32,
+          40,
+          28
+        ],
+        [
+          2,
+          3,
+          16,
+          20,
+          14
+        ],
+        [
+          2,
+          3,
+          8,
+          10,
+          7
+        ]
+      ],
+      "loss": 0.3602958023548126,
+      "forward_backward_seconds": 0.2597348606213927,
+      "peak_allocated_gib": 5.175695896148682,
+      "strict_reload_and_ds_off": true
+    }
+  },
+  "official_source_hash_verified": true
+}

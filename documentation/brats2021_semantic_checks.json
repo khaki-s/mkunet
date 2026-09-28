@@ -1,0 +1,141 @@
+{
+  "unmodified_official_UNet_class": true,
+  "initialization": {
+    "nnUNetTrainer_BraTSAuditBaseline300": {
+      "encoder": "f8814d7d64cc1282c4a0e6c2c8a6c85b4abc4ad8ef8eba0b7db9046a1afe7ae0",
+      "decoder": "36efd30bb863958a6646ce114d2aa16053102f6e7e6b744c09df7238fdf93c6f",
+      "rng_after": "a0db4ec62298899de2e041175a237ae8b9522d27e4d5fd68555e5f37b5a06146"
+    },
+    "nnUNetTrainer_BraTSExclusiveLoss300": {
+      "encoder": "f8814d7d64cc1282c4a0e6c2c8a6c85b4abc4ad8ef8eba0b7db9046a1afe7ae0",
+      "decoder": "36efd30bb863958a6646ce114d2aa16053102f6e7e6b744c09df7238fdf93c6f",
+      "rng_after": "a0db4ec62298899de2e041175a237ae8b9522d27e4d5fd68555e5f37b5a06146"
+    },
+    "nnUNetTrainer_BraTSSemanticMoELoss300": {
+      "encoder": "f8814d7d64cc1282c4a0e6c2c8a6c85b4abc4ad8ef8eba0b7db9046a1afe7ae0",
+      "decoder": "36efd30bb863958a6646ce114d2aa16053102f6e7e6b744c09df7238fdf93c6f",
+      "rng_after": "a0db4ec62298899de2e041175a237ae8b9522d27e4d5fd68555e5f37b5a06146",
+      "experts": [
+        "34253d979461ca6f66a82cefb05f8a48f30685e56668db2e033a50401754254f",
+        "d68c2aa442c172432e93919e86ca1fb722861a1479fe863ddd36d260385bdb6c",
+        "a8f715211ff6f0ccd1d38c18fe8ed6b643a7425992fd631e0dfb6041be3a8439",
+        "966874ffb0071d79883f1a03f723da46df771503d0553a19cb81550e9d63858a"
+      ]
+    },
+    "nnUNetTrainer_BraTSSemanticMoEUniformLoss300": {
+      "encoder": "f8814d7d64cc1282c4a0e6c2c8a6c85b4abc4ad8ef8eba0b7db9046a1afe7ae0",
+      "decoder": "36efd30bb863958a6646ce114d2aa16053102f6e7e6b744c09df7238fdf93c6f",
+      "rng_after": "a0db4ec62298899de2e041175a237ae8b9522d27e4d5fd68555e5f37b5a06146",
+      "experts": [
+        "34253d979461ca6f66a82cefb05f8a48f30685e56668db2e033a50401754254f",
+        "d68c2aa442c172432e93919e86ca1fb722861a1479fe863ddd36d260385bdb6c",
+        "a8f715211ff6f0ccd1d38c18fe8ed6b643a7425992fd631e0dfb6041be3a8439",
+        "966874ffb0071d79883f1a03f723da46df771503d0553a19cb81550e9d63858a"
+      ]
+    }
+  },
+  "training_contracts": {
+    "nnUNetTrainer_BraTSSemanticMoELoss300": {
+      "warmup_expert_gradients": true,
+      "joint_router_gradient": true,
+      "phase_boundary_resume": true,
+      "tensor_and_deep_supervision_outputs": true,
+      "checkpoint_output_exact": true,
+      "finite_contribution_and_gradient_logs": true
+    },
+    "nnUNetTrainer_BraTSSemanticMoEUniformLoss300": {
+      "warmup_expert_gradients": true,
+      "joint_router_gradient": false,
+      "phase_boundary_resume": true,
+      "tensor_and_deep_supervision_outputs": true,
+      "checkpoint_output_exact": true,
+      "finite_contribution_and_gradient_logs": true
+    }
+  },
+  "gpu": "not run",
+  "seeded_python_numpy_torch_batches_and_resume_offset": true,
+  "full_patch_meta_shapes_only": [
+    [
+      2,
+      3,
+      128,
+      160,
+      112
+    ],
+    [
+      2,
+      3,
+      64,
+      80,
+      56
+    ],
+    [
+      2,
+      3,
+      32,
+      40,
+      28
+    ],
+    [
+      2,
+      3,
+      16,
+      20,
+      14
+    ],
+    [
+      2,
+      3,
+      8,
+      10,
+      7
+    ]
+  ],
+  "real_augmented_train_batch_same_seed": [
+    {
+      "trainer": "nnUNetTrainer_BraTSExclusiveLoss300",
+      "data_and_target_sha256": "8e9d6a862c430b661107ad17b39d7fd48152f844456394aec4fd38dfce25a82d",
+      "shape": [
+        2,
+        4,
+        128,
+        160,
+        112
+      ],
+      "keys": [
+        "BraTS2021_00195",
+        "BraTS2021_00607"
+      ]
+    },
+    {
+      "trainer": "nnUNetTrainer_BraTSSemanticMoELoss300",
+      "data_and_target_sha256": "8e9d6a862c430b661107ad17b39d7fd48152f844456394aec4fd38dfce25a82d",
+      "shape": [
+        2,
+        4,
+        128,
+        160,
+        112
+      ],
+      "keys": [
+        "BraTS2021_00195",
+        "BraTS2021_00607"
+      ]
+    },
+    {
+      "trainer": "nnUNetTrainer_BraTSSemanticMoEUniformLoss300",
+      "data_and_target_sha256": "8e9d6a862c430b661107ad17b39d7fd48152f844456394aec4fd38dfce25a82d",
+      "shape": [
+        2,
+        4,
+        128,
+        160,
+        112
+      ],
+      "keys": [
+        "BraTS2021_00195",
+        "BraTS2021_00607"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "files": {
+    "nnunetv2/utilities/brats2021_audit/__init__.py": "0c833e0ddd7777e06569ffe4ce0075c4461f5fdb21fd38e04858ebfa5f1bd05e",
+    "nnunetv2/utilities/brats2021_audit/blocks.py": "2d112516758fbef38c5a7b757f3e91c36f2b652132d823a2d0bc698e903e0e6a",
+    "nnunetv2/utilities/brats2021_audit/network.py": "b19084a3c64fb66caa5727568dfdf24cc9e3e5ff09794b8ae35cb0248a8643c2",
+    "nnunetv2/utilities/brats2021_audit/sampling.py": "2478933cf0749827a4cba6ab9f47e705fdddf6fa082f7e6d8f7daaf1b2054ea3",
+    "nnunetv2/utilities/brats2021_audit/trainer.py": "be17608dce8180266b509b994ba982657c4f667988086af9e828ed0bd406d9dc",
+    "nnunetv2/utilities/brats2021_audit/preflight.py": "72873ec9905248898a1aa9ee977ce7bf24c07228d25dc3b4590c68990a6654a6",
+    "nnunetv2/utilities/brats2021_audit/evaluate.py": "37fa2aa95031680de32e7ab34b4db3e6d907acca83c3aff7811f1659e2f574e0",
+    "nnunetv2/utilities/brats2021_audit/integration_check.py": "7767a14bc306b44cde752c1994f57017ed4fe928660a5a860b64b20a6266f5ed",
+    "nnunetv2/utilities/brats2021_audit/diagnostics.py": "923bdca6a5e55ce08b628f14d4b7f8aa04552d154f39b7333dd544494c2a3e69",
+    "nnunetv2/utilities/brats2021_audit/reproducibility.py": "cfe4fe6d7e43f88238decc48b5220c76f1f5d6b6108459b477f88a601f26aae2",
+    "nnunetv2/utilities/brats2021_audit/semantic_blocks.py": "11579699ebad38c9d690a6e5b1341b1add410a5b75945b9df65260555297f975",
+    "nnunetv2/utilities/brats2021_audit/semantic_network.py": "904817ba6c6d9539e7b68ed3b6d06caa402354baa292deddfdab4487a5abdf11",
+    "nnunetv2/utilities/brats2021_audit/semantic_diagnostics.py": "cd94470cc3f07b1956be0855494588c04d6191ac5f9cb02f1bea0d9808e6d48d",
+    "nnunetv2/utilities/brats2021_audit/semantic_trainer.py": "8c6a89e026d30ffe355257c998cd8bc8d6b452c9af34cb3516aa178738aa7b1d",
+    "nnunetv2/utilities/brats2021_audit/semantic_check.py": "d8238db1bd309d6c450e135ffb23f84bf1ac2785a3d50e4ba80634e7e36b3049",
+    "nnunetv2/training/nnUNetTrainer/variants/brats2021_audit/nnUNetTrainer_BraTSAudit200.py": "3c4cb8a3151e1bcf39109db1ea44b422ee94a6fa31bfbcdf8275b54472f67307"
+  },
+  "gpu_check_run": false,
+  "formal_training_started": false,
+  "report": "documentation/brats2021_semantic_checks.json"
+}

@@ -1,0 +1,8 @@
+{
+  "repository": "https://github.com/ge-xing/SegMamba-V2",
+  "commit": "7b819768826f1d36e3cd81348cefdc3cbb16d3cd",
+  "path": "brats23/models_segmamba/segmambav2.py",
+  "url": "https://raw.githubusercontent.com/ge-xing/SegMamba-V2/7b819768826f1d36e3cd81348cefdc3cbb16d3cd/brats23/models_segmamba/segmambav2.py",
+  "sha256": "84e478e10846d4e3112e208ca279d9012abbb3b7ce555d4f6b79a7959647e2cc",
+  "reuse": "Unmodified complete source file; import MambaLayer only; Apache-2.0 header preserved."
+}
