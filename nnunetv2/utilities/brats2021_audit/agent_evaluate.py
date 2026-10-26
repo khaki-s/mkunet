@@ -99,11 +99,19 @@ def aggregate_case_routes(routes, case_id, code):
     local = np.stack([np.asarray(r['local_logit_rms'])[:, 0] for r in valid])
     refined = np.stack([np.asarray(r['refined_logit_rms'])[:, 0] for r in valid])
     mask = mask_from_code(code).numpy()
+    names = MODALITIES
+    # Physical inputs still have four slots. The Generalist is a fifth expert
+    # that is present for every nonempty modality subset, including singletons.
+    if weights.shape[-1] == 5:
+        names = (*MODALITIES, 'Generalist')
+        mask = np.concatenate((mask, np.ones(1, dtype=bool)))
+    elif weights.shape[-1] != 4:
+        raise ValueError(f'Unsupported expert count: {weights.shape[-1]}')
     if not np.all(weights[:, :, ~mask] == 0) or not np.allclose(weights.sum(-1), 1, atol=1e-6):
         raise ValueError('Invalid routing weights in evaluation')
     result = []
     for c, region in enumerate(('WT', 'TC', 'ET')):
-        for m, name in enumerate(MODALITIES):
+        for m, name in enumerate(names):
             result.append({'case_id': case_id, 'mask_code': code, 'region': region, 'modality': name,
                 'present': int(mask[m]), 'weight': float(weights[:, c, m].mean()),
                 'beta': float(betas[:, c].mean()), 'joint_weight': float((1 - betas[:, c]).mean()),

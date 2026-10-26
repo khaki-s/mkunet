@@ -1,0 +1,11 @@
+{
+  "source_path": "/root/brats_dataset_audit/reference_code/SimMLM-main/models/nnunet.py",
+  "source_sha256": "9c87d58d68b7d76eb0d30d96eedc95b26457bef968ae9c751af054618ea5f202",
+  "vendored_sha256": "9a1102ff9b85d8fcee4326cdd2368c5b6ac5e98ea74d816b63090d23f89f107e",
+  "changes": [
+    "Move demo-only torchsummary import inside __main__; UNet class unchanged."
+  ],
+  "adaptation": "Use constructor strides from Dataset137 plans; call UNet directly; no upstream training/data pipeline imports.",
+  "license_file_in_local_snapshot": null,
+  "repository_note": "Local user-provided SimMLM-main snapshot; no commit identifier available."
+}
