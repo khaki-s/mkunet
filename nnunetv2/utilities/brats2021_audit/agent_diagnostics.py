@@ -37,6 +37,8 @@ def output_summary(parts):
                   'joint_logit_rms': rms(parts['joint']), 'local_logit_rms': [rms(z) for z in parts['local_experts']],
                   'refined_logit_rms': [rms(z) for z in parts['experts']],
                   'scope': 'training patch routing, not case-level causal importance'}
+        if 'expert_names' in parts:
+            result['expert_names'] = list(parts['expert_names'])
         if parts['attention'] is not None:
             result['message_attention'] = parts['attention'].detach().cpu().tolist()
         return result

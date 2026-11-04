@@ -100,13 +100,22 @@ def aggregate_case_routes(routes, case_id, code):
     refined = np.stack([np.asarray(r['refined_logit_rms'])[:, 0] for r in valid])
     mask = mask_from_code(code).numpy()
     names = MODALITIES
-    # Physical inputs still have four slots. The Generalist is a fifth expert
-    # that is present for every nonempty modality subset, including singletons.
+    # Physical inputs still have four slots. The fifth node (independent
+    # Generalist or shared Joint) is present for every nonempty input subset.
     if weights.shape[-1] == 5:
         names = (*MODALITIES, 'Generalist')
         mask = np.concatenate((mask, np.ones(1, dtype=bool)))
     elif weights.shape[-1] != 4:
         raise ValueError(f'Unsupported expert count: {weights.shape[-1]}')
+    declared_names = [tuple(r['expert_names']) for r in valid if 'expert_names' in r]
+    if declared_names:
+        candidate = declared_names[0]
+        if (len(candidate) != weights.shape[-1] or candidate[:4] != tuple(MODALITIES)
+                or any(not isinstance(name, str) or not name for name in candidate)
+                or len(set(candidate)) != len(candidate)
+                or any(other != candidate for other in declared_names)):
+            raise ValueError('Inconsistent expert names in evaluation routes')
+        names = candidate
     if not np.all(weights[:, :, ~mask] == 0) or not np.allclose(weights.sum(-1), 1, atol=1e-6):
         raise ValueError('Invalid routing weights in evaluation')
     result = []
