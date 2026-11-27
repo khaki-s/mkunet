@@ -13,6 +13,7 @@ from nnunetv2.utilities.brats2021_audit_v2.interactive.schemas import BoxPrompt,
 from nnunetv2.utilities.brats2021_audit_v2.interactive.session import CorrectionSession
 from nnunetv2.utilities.brats2021_audit_v2.interactive.model import TorchPromptCorrector, load_corrector
 from nnunetv2.utilities.brats2021_audit_v2.interactive.controller import RuleController, LLMController, action_from_json
+from nnunetv2.utilities.brats2021_audit_v2.interactive.atomic import atomic_point_transaction
 
 
 def sha256_file(path):
@@ -113,6 +114,17 @@ def main():
         if command.get("undo") is True:
             operations.append({"undo": session.undo()})
             replay_commands.append({"undo": True})
+            continue
+        if "atomic_assignment" in command:
+            assignment = command["atomic_assignment"]
+            normalized = []
+            with atomic_point_transaction(session, assignment["voxel"], assignment["class_name"]):
+                for raw_action in command["actions"]:
+                    action = action_from_json(json.dumps(raw_action), session)
+                    operations.append(session.apply_action(action))
+                    normalized.append(action.to_dict())
+            replay_commands.append({"atomic_assignment": assignment, "actions": normalized,
+                                    "human_prompt_count": 1, "visual_tool_calls": 2})
             continue
         if "action" in command:
             action = action_from_json(json.dumps(command["action"]), session)

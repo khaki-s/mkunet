@@ -34,9 +34,13 @@ def output_summary(parts):
         rms = lambda z: z.detach().float()[:, :, ::4, ::4, ::4].square().mean((2, 3, 4)).sqrt().cpu().tolist()
         result = {'mask_codes': mask_codes(parts['modality_mask']).cpu().tolist(),
                   'weights': parts['weights'].detach().cpu().tolist(), 'beta': parts['beta'].detach().cpu().tolist(),
-                  'joint_logit_rms': rms(parts['joint']), 'local_logit_rms': [rms(z) for z in parts['local_experts']],
+                  'joint_logit_rms': rms(parts['joint']) if 'joint' in parts else None,
+                  'local_logit_rms': [rms(z) for z in parts['local_experts']],
                   'refined_logit_rms': [rms(z) for z in parts['experts']],
                   'scope': 'training patch routing, not case-level causal importance'}
+        if parts.get('joint_present') is False:
+            result.update(joint_present=False, fusion_kind=parts['fusion_kind'],
+                          beta_kind='fixed_one_for_csv_compatibility', beta_trainable=False)
         if 'expert_names' in parts:
             result['expert_names'] = list(parts['expert_names'])
         if parts['attention'] is not None:

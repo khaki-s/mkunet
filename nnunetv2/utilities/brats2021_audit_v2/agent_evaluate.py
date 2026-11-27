@@ -15,6 +15,8 @@ from .missing_predictor import MissingModalityPredictor, preprocess_available_ca
 from .reproducibility import state_digest
 
 REGIONS = {'WT': (1, 2, 3), 'TC': (2, 3), 'ET': (3,), 'ED': (1,), 'NCR': (2,)}
+REMOVAL_DELTA_FIELDS = ['case_id', 'mask_code', 'removed', 'smaller_mask_code',
+                        'region', 'delta_dice', 'status']
 
 
 def file_sha256(path):
@@ -277,7 +279,9 @@ def evaluate_cases(predictor, keys, source, gt_folder, output, *, codes=MASK_COD
     write_csv(output / 'summary_by_mask.csv', by_mask)
     write_csv(output / 'summary_by_cardinality.csv', by_count)
     write_csv(output / 'routing_per_case.csv', aggregated, fields=None if aggregated else ['case_id', 'mask_code', 'region', 'modality', 'weight'])
-    write_csv(output / 'input_removal_delta.csv', removal_deltas(metrics))
+    # A mask_15-only evaluation has no paired missing-modality comparison.
+    # It must still finish with a header-only CSV, not index an empty rows list.
+    write_csv(output / 'input_removal_delta.csv', removal_deltas(metrics), fields=REMOVAL_DELTA_FIELDS)
     summary = {'n_cases': len(keys), 'n_masks': len(codes), 'by_mask': by_mask, 'by_cardinality': by_count}
     write_json(output / 'summary.json', summary)
     write_json(manifest, {'status': 'complete', 'contract': contract})

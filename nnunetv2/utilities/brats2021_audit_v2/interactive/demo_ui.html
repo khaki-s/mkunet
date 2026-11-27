@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>LegacyV2 交互分割</title><style>
+:root{font-family:system-ui,"Noto Sans CJK SC",sans-serif;color:#e6ecf6;background:#101823}*{box-sizing:border-box}body{margin:0;padding:28px;max-width:1450px;margin:auto}h1{font-size:26px;margin:0 0 8px}p{color:#aebacf;line-height:1.6}.bar{display:flex;gap:14px;flex-wrap:wrap;align-items:center;margin:18px 0}select,button,textarea,input{font:inherit}select,button{padding:9px 14px;border:1px solid #40516b;border-radius:7px;background:#203047;color:#edf4ff}button{cursor:pointer}button.primary{background:#087e8b;border-color:#42b8bd}button:disabled{opacity:.5;cursor:wait}.viewers{display:grid;grid-template-columns:1fr 1fr;gap:22px}.panel{background:#172232;border:1px solid #31415a;border-radius:10px;padding:15px}.panel h2{font-size:16px;margin:0 0 10px}.canvas-wrap{position:relative;max-width:600px;margin:auto}canvas{width:100%;height:auto;display:block;image-rendering:pixelated;background:#000}#marks{position:absolute;inset:0;cursor:crosshair;touch-action:none}textarea{display:block;width:100%;height:76px;padding:12px;background:#0f1928;color:#eef4ff;border:1px solid #40516b;border-radius:7px}#status{white-space:pre-wrap;overflow-wrap:anywhere;font-size:13px;color:#b7c7dc;max-height:220px;overflow:auto}label{font-size:14px}.note{padding:12px 16px;background:#223147;border-left:3px solid #40bbc0;border-radius:4px;font-size:14px}.legend span{padding-right:15px}#slider{width:min(350px,45vw)}.error{color:#ff9c9c!important}@media(max-width:800px){body{padding:14px}.viewers{grid-template-columns:1fr}}
+</style></head><body>
+<h1>LegacyV2 → nnInteractive 交互分割</h1>
+<p id="identity">正在读取病例…</p>
+<div class="note">本页面不读取 GT。点击右图添加正/负点，或拖动绘制单切片框。空间提示决定“哪里”，文字决定“改什么”；Qwen 文本模型不能自行观察 MRI 找错。</div>
+<div class="bar"><label>仅显示 MRI <select id="modality"><option value="0">T1</option><option value="1" selected>T1ce</option><option value="2">T2</option><option value="3">FLAIR</option></select></label><strong id="backend-modality"></strong><label>原生 z 切片 <input id="slider" type="range" min="0" value="0"><b id="zlabel"></b></label><span class="legend"><span style="color:#69d49c">ED</span><span style="color:#70b8ff">NCR</span><span style="color:#ff7a87">ET</span></span></div>
+<div class="viewers"><section class="panel"><h2>初始 LegacyV2（固定）</h2><div class="canvas-wrap"><canvas id="before"></canvas></div></section><section class="panel"><h2>当前结果 / 在此添加提示</h2><div class="canvas-wrap"><canvas id="after"></canvas><canvas id="marks"></canvas></div></section></div>
+<p>显示坐标为 NIfTI 原生体素：[x, y, z]；横轴 x、纵轴 y。这里不自动切换放射学左右方向。正点表示属于所选区域，负 ET 点不代表背景。</p>
+<div class="bar"><label>目标 <select id="target"><option>ET</option><option>TC</option><option>WT</option></select></label><label>工具 <select id="tool"><option value="point">点</option><option value="box">切片框</option></select></label><label>极性 <select id="polarity"><option value="positive">正：补上漏分</option><option value="negative">负：去掉多分</option></select></label><button id="clear">清空未提交提示</button><span id="selected">尚未选择提示</span></div>
+<div class="bar"><label>或明确指定一个点的类别 <select id="atomic"><option value="ED">ED / 水肿</option><option value="NCR">NCR / 非增强核心</option></select></label><button id="assign">将唯一选中点指定为该类别</button><span>使用两个区域工具；撤回时需撤回两步</span></div>
+<textarea id="instruction">ET漏分了，补上这个正点附近的ET</textarea>
+<div class="bar"><button class="primary" id="apply">执行修正</button><button id="undo">撤回上一轮</button><button id="save">导出当前结果与操作记录</button></div>
+<div class="panel"><h2>操作结果</h2><pre id="status">等待提示。GT 不可用时不会显示 Dice；导出后可单独用 score 命令评价。</pre></div>
+<script>
+const token=new URLSearchParams(location.search).get('token');
+let info, points=[], box=null, drag=null, revision=0;
+const $=id=>document.getElementById(id), z=()=>Number($('slider').value);
+const url=(route,extra='')=>route+'?token='+encodeURIComponent(token)+extra;
+async function api(route,data){const opt=data===undefined?{}:{method:'POST',headers:{'Content-Type':'application/json','X-Demo-Request':'manual'},body:JSON.stringify(data)};const response=await fetch(url(route),opt);const value=await response.json();if(!response.ok)throw Error(value.error||'请求失败');return value;}
+function status(value,error=false){$('status').textContent=typeof value==='string'?value:JSON.stringify(value,null,2);$('status').className=error?'error':'';}
+function resize(){for(const id of ['before','after','marks']){$(id).width=info.shape[0];$(id).height=info.shape[1];}}
+function image(id,initial){const img=new Image();img.onload=()=>{$(id).getContext('2d').drawImage(img,0,0);};img.src=url('/slice','&z='+z()+'&modality='+$('modality').value+'&initial='+(initial?1:0)+'&v='+revision);}
+function draw(){const c=$('marks').getContext('2d');c.clearRect(0,0,c.canvas.width,c.canvas.height);for(const point of points){if(point.voxel[2]!==z())continue;c.strokeStyle=point.positive?'#5aff9d':'#ff6374';c.lineWidth=1.6;c.beginPath();c.arc(point.voxel[0]+.5,point.voxel[1]+.5,3,0,Math.PI*2);c.stroke();}if(box&&box.start[2]===z()){c.strokeStyle=box.positive?'#5aff9d':'#ff6374';c.lineWidth=1.2;c.strokeRect(box.start[0],box.start[1],box.stop[0]-box.start[0],box.stop[1]-box.start[1]);}$('selected').textContent=points.length+' 个点'+(box?' + 1 个框':'');}
+function refresh(){revision++;$('zlabel').textContent=z();image('before',true);image('after',false);draw();}
+function voxel(event){const r=$('marks').getBoundingClientRect();return [Math.max(0,Math.min(info.shape[0]-1,Math.floor((event.clientX-r.left)/r.width*info.shape[0]))),Math.max(0,Math.min(info.shape[1]-1,Math.floor((event.clientY-r.top)/r.height*info.shape[1]))),z()];}
+function boxFrom(a,b){return{start:[Math.min(a[0],b[0]),Math.min(a[1],b[1]),a[2]],stop:[Math.max(a[0],b[0])+1,Math.max(a[1],b[1])+1,a[2]+1],positive:$('polarity').value==='positive'};}
+$('marks').onpointerdown=e=>{e.preventDefault();if($('tool').value==='point'){points.push({voxel:voxel(e),positive:$('polarity').value==='positive'});draw();}else{drag=voxel(e);$('marks').setPointerCapture(e.pointerId);}};
+$('marks').onpointermove=e=>{if(drag){box=boxFrom(drag,voxel(e));draw();}};
+$('marks').onpointerup=e=>{if(drag){box=boxFrom(drag,voxel(e));drag=null;draw();}};
+$('slider').oninput=refresh;$('modality').onchange=refresh;
+$('clear').onclick=()=>{points=[];box=null;draw();};
+function suggest(){const t=$('target').value;$('instruction').value=$('polarity').value==='positive'?t+'漏分了，补上这个正点附近的'+t:t+'分多了，去掉这个位置的'+t;}
+$('polarity').onchange=suggest;$('target').onchange=()=>{points=[];box=null;draw();suggest();};
+async function action(route,data){for(const b of document.querySelectorAll('button'))b.disabled=true;status('正在执行，第一次模型推理可能较慢…');try{const result=await api(route,data);if(result.info)info=result.info;status(result);if(route==='/apply'||route==='/assign-class'){points=[];box=null;}refresh();}catch(error){status(error.message,true);}finally{for(const b of document.querySelectorAll('button'))b.disabled=false;}}
+$('apply').onclick=()=>action('/apply',{target:$('target').value,text:$('instruction').value,points,box});$('undo').onclick=()=>action('/undo',{});$('save').onclick=()=>action('/export',{});
+$('assign').onclick=()=>{if(points.length!==1||box){status('明确类别赋值需要恰好一个选中点，且不包含框。',true);return;}action('/assign-class',{class_name:$('atomic').value,voxel:points[0].voxel});};
+api('/info').then(value=>{info=value;resize();$('slider').max=info.shape[2]-1;$('slider').value=Math.floor(info.shape[2]/2);$('identity').textContent=info.case_id+' · '+info.split+' · controller='+info.controller+' · GT-free manual interaction';$('backend-modality').textContent='纠错后端固定使用 '+info.correction_modality.name+'（启动时 --modality）';for(const opt of $('modality').options)opt.disabled=!info.modality_mask[Number(opt.value)];if(!info.modality_mask[Number($('modality').value)])$('modality').value=info.modality_mask.findIndex(Boolean);refresh();}).catch(error=>status(error.message,true));
+</script></body></html>
